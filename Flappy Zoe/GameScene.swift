@@ -8,38 +8,36 @@
 
 import SpriteKit
 
+enum 图层: CGFloat {
+    case 背景
+    case 前景
+    case 游戏角色
+}
+
 class GameScene: SKScene {
+    
+    let 世界单位 = SKNode()
+    
     override func didMoveToView(view: SKView) {
-        /* Setup your scene here */
-        let myLabel = SKLabelNode(fontNamed:"Chalkduster")
-        myLabel.text = "Hello, World!";
-        myLabel.fontSize = 45;
-        myLabel.position = CGPoint(x:CGRectGetMidX(self.frame), y:CGRectGetMidY(self.frame));
-        
-        self.addChild(myLabel)
+        addChild(世界单位)
+        设置背景()
+    }
+    
+    //  MARK: 设置的相关方法
+    
+    func 设置背景() {
+        let 背景 = SKSpriteNode(imageNamed: "Background")
+        背景.anchorPoint = CGPoint(x: 0.5, y: 1.0)
+        背景.position = CGPoint(x: size.width/2, y: size.height)
+        背景.zPosition = 图层.背景.rawValue
+        世界单位.addChild(背景)
     }
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
-       /* Called when a touch begins */
         
-        for touch in touches {
-            let location = touch.locationInNode(self)
-            
-            let sprite = SKSpriteNode(imageNamed:"Spaceship")
-            
-            sprite.xScale = 0.5
-            sprite.yScale = 0.5
-            sprite.position = location
-            
-            let action = SKAction.rotateByAngle(CGFloat(M_PI), duration:1)
-            
-            sprite.runAction(SKAction.repeatActionForever(action))
-            
-            self.addChild(sprite)
-        }
     }
    
     override func update(currentTime: CFTimeInterval) {
-        /* Called before each frame is rendered */
+
     }
 }
