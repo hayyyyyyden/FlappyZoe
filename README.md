@@ -1,2 +1,0 @@
-# FlappyZoe
-Flappy Zoe Project.

@@ -1,8 +1,8 @@
 //
 //  AppDelegate.swift
-//  Flappy Zoe
+//  Flappy Bird
 //
-//  Created by fang on 15/11/30.
+//  Created by fang on 15/12/2.
 //  Copyright © 2015年 Fang YiXiong. All rights reserved.
 //
 

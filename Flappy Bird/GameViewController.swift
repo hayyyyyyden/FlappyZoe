@@ -1,8 +1,8 @@
 //
 //  GameViewController.swift
-//  Flappy Zoe
+//  Flappy Bird
 //
-//  Created by fang on 15/11/30.
+//  Created by fang on 15/12/2.
 //  Copyright (c) 2015年 Fang YiXiong. All rights reserved.
 //
 
@@ -15,6 +15,7 @@ class GameViewController: UIViewController {
         
         if let sk视图 = self.view as? SKView {
             if sk视图.scene == nil {
+                //  创建场景
                 let 长宽比 = sk视图.bounds.size.height / sk视图.bounds.size.width
                 let 场景 = GameScene(size:CGSize(width: 320, height: 320 * 长宽比))
                 sk视图.showsFPS = true
@@ -27,9 +28,12 @@ class GameViewController: UIViewController {
                 sk视图.presentScene(场景)
             }
         }
+        
+        
     }
     
     override func prefersStatusBarHidden() -> Bool {
         return true
     }
 }
+

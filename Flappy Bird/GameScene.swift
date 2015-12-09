@@ -1,8 +1,8 @@
 //
 //  GameScene.swift
-//  Flappy Zoe
+//  Flappy Bird
 //
-//  Created by fang on 15/11/30.
+//  Created by fang on 15/12/2.
 //  Copyright (c) 2015年 Fang YiXiong. All rights reserved.
 //
 
@@ -14,11 +14,13 @@ enum 图层: CGFloat {
     case 游戏角色
 }
 
+
 class GameScene: SKScene {
     
     let 世界单位 = SKNode()
     var 游戏区域起始点: CGFloat = 0
     var 游戏区域的高度: CGFloat = 0
+    
     
     override func didMoveToView(view: SKView) {
         addChild(世界单位)
@@ -26,7 +28,7 @@ class GameScene: SKScene {
         设置前景()
     }
     
-    //  MARK: 设置的相关方法
+    // MARK: 设置的相关方法
     
     func 设置背景() {
         let 背景 = SKSpriteNode(imageNamed: "Background")
@@ -37,6 +39,7 @@ class GameScene: SKScene {
         
         游戏区域起始点 = size.height - 背景.size.height
         游戏区域的高度 = 背景.size.height
+        
     }
     
     func 设置前景() {
@@ -47,8 +50,10 @@ class GameScene: SKScene {
         世界单位.addChild(前景)
     }
     
+    
+    
+    
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        
     }
    
     override func update(currentTime: CFTimeInterval) {
