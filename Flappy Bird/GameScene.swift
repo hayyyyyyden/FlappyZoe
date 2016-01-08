@@ -28,16 +28,6 @@ class GameScene: SKScene {
     var 上一次更新时间: NSTimeInterval = 0
     var dt: NSTimeInterval = 0
     
-    //  创建音效
-    let 叮的音效 = SKAction.playSoundFileNamed("ding.wav", waitForCompletion: false)
-    let 拍打的音效 = SKAction.playSoundFileNamed("flapping.wav", waitForCompletion: false)
-    let 摔倒的音效 = SKAction.playSoundFileNamed("whack.wav", waitForCompletion: false)
-    let 下落的音效 = SKAction.playSoundFileNamed("falling.wav", waitForCompletion: false)
-    let 撞击地面的音效 = SKAction.playSoundFileNamed("hitGround.wav", waitForCompletion: false)
-    let 砰的音效 = SKAction.playSoundFileNamed("pop.wav", waitForCompletion: false)
-    let 得分的音效 = SKAction.playSoundFileNamed("coin.wav", waitForCompletion: false)
-    
-    
     override func didMoveToView(view: SKView) {
         addChild(世界单位)
         设置背景()
@@ -76,11 +66,6 @@ class GameScene: SKScene {
     // MARK: 游戏流程
     
     func 主角飞一下() {
-        
-        // 播放音效
-        runAction(拍打的音效)
-        
-        //  增加上冲速度
         速度 = CGPoint(x: 0, y: k上冲速度)
     }
     
