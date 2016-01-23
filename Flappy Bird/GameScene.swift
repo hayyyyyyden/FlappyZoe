@@ -10,6 +10,7 @@ import SpriteKit
 
 enum 图层: CGFloat {
     case 背景
+    case 障碍物
     case 前景
     case 游戏角色
 }
@@ -19,9 +20,15 @@ class GameScene: SKScene {
     
     let k前景地面数 = 2
     let k地面移动速度 : CGFloat = -150.0
+    let k重力 : CGFloat = -1500.0
+    let k上冲速度 : CGFloat = 400.0
+    let k底部障碍最小乘数 : CGFloat = 0.1
+    let k底部障碍最大乘数 : CGFloat = 0.6
+    let k缺口乘数 : CGFloat = 3.5
+    let k首次生成障碍延迟: NSTimeInterval = 1.75
+    let k每次重生障碍延迟: NSTimeInterval = 1.5
     
-    let k重力: CGFloat = -1500.0
-    let k上冲速度: CGFloat = 400.0
+    
     var 速度 = CGPoint.zero
     
     let 世界单位 = SKNode()
@@ -45,6 +52,7 @@ class GameScene: SKScene {
         设置背景()
         设置前景()
         设置主角()
+        无限重生障碍()
     }
     
     // MARK: 设置的相关方法
@@ -79,6 +87,50 @@ class GameScene: SKScene {
     }
     
     // MARK: 游戏流程
+    
+    func 创建障碍物(图片名: String) -> SKSpriteNode {
+        let 障碍物 = SKSpriteNode(imageNamed: 图片名)
+        障碍物.zPosition = 图层.障碍物.rawValue
+        return 障碍物
+    }
+    
+    func 生成障碍() {
+        
+        let 底部障碍 = 创建障碍物("CactusBottom")
+        let 起始X坐标 = size.width + 底部障碍.size.width/2
+        
+        let Y坐标最小值 = (游戏区域起始点 - 底部障碍.size.height/2) + 游戏区域的高度 * k底部障碍最小乘数
+        let Y坐标最大值 = (游戏区域起始点 - 底部障碍.size.height/2) + 游戏区域的高度 * k底部障碍最大乘数
+        底部障碍.position = CGPointMake(起始X坐标, CGFloat.random(min: Y坐标最小值, max: Y坐标最大值))
+        世界单位.addChild(底部障碍)
+        
+        let 顶部障碍 = 创建障碍物("CactusTop")
+        顶部障碍.zRotation = CGFloat(180).degreesToRadians()
+        顶部障碍.position = CGPoint(x: 起始X坐标, y: 底部障碍.position.y + 底部障碍.size.height/2 + 顶部障碍.size.height/2 + 主角.size.height * k缺口乘数)
+        世界单位.addChild(顶部障碍)
+        
+        let X轴移动距离 = -(size.width + 底部障碍.size.width)
+        let 移动持续时间 = X轴移动距离 / k地面移动速度
+        
+        let 移动的动作队列 = SKAction.sequence([
+                SKAction.moveByX(X轴移动距离, y: 0, duration: NSTimeInterval(移动持续时间)),
+                SKAction.removeFromParent()
+            ])
+        顶部障碍.runAction(移动的动作队列)
+        底部障碍.runAction(移动的动作队列)
+        
+    }
+    
+    func 无限重生障碍() {
+        let 首次延迟 = SKAction.waitForDuration(k首次生成障碍延迟)
+        let 重生障碍 = SKAction.runBlock(生成障碍)
+        let 每次重生间隔 = SKAction.waitForDuration(k每次重生障碍延迟)
+        let 重生的动作队列 = SKAction.sequence([重生障碍, 每次重生间隔])
+        let 无限重生 = SKAction.repeatActionForever(重生的动作队列)
+        let 总的动作队列 = SKAction.sequence([首次延迟, 无限重生])
+        runAction(总的动作队列)
+    }
+    
     
     func 主角飞一下() {
         速度 = CGPoint(x: 0, y: k上冲速度)
