@@ -35,6 +35,7 @@ class GameScene: SKScene {
     var 游戏区域起始点: CGFloat = 0
     var 游戏区域的高度: CGFloat = 0
     let 主角 = SKSpriteNode(imageNamed: "Bird0")
+    let 帽子 = SKSpriteNode(imageNamed: "Sombrero")
     var 上一次更新时间: NSTimeInterval = 0
     var dt: NSTimeInterval = 0
     
@@ -52,6 +53,7 @@ class GameScene: SKScene {
         设置背景()
         设置前景()
         设置主角()
+        设置帽子()
         无限重生障碍()
     }
     
@@ -84,6 +86,12 @@ class GameScene: SKScene {
             前景.name = "前景"
             世界单位.addChild(前景)
         }
+    }
+    
+    func 设置帽子() {
+        
+        帽子.position = CGPoint(x: 31 - 帽子.size.width/2, y: 29 - 帽子.size.height/2)
+        主角.addChild(帽子)
     }
     
     // MARK: 游戏流程
@@ -143,6 +151,12 @@ class GameScene: SKScene {
         
         // 增加上冲速度
         主角飞一下()
+        
+        // 移动帽子
+        let 向上移动 = SKAction.moveByX(0, y: 12, duration: 0.15)
+        向上移动.timingMode = .EaseInEaseOut
+        let 向下移动 = 向上移动.reversedAction()
+        帽子.runAction(SKAction.sequence([向上移动, 向下移动]))
     }
     
     // MARK: 更新
