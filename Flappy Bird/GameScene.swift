@@ -4,7 +4,7 @@
 //
 //  Created by fang on 15/12/2.
 //  Copyright (c) 2015年 Fang YiXiong. All rights reserved.
-//
+//  多边形工具 - http://stackoverflow.com/questions/19040144
 
 import SpriteKit
 
@@ -13,6 +13,13 @@ enum 图层: CGFloat {
     case 障碍物
     case 前景
     case 游戏角色
+}
+
+struct 物理层 {
+    static let 无: UInt32 =        0
+    static let 游戏角色: UInt32 = 0b1  // 1
+    static let 障碍物: UInt32  = 0b10  // 2
+    static let 地面: UInt32   = 0b100  // 4
 }
 
 
@@ -49,6 +56,10 @@ class GameScene: SKScene {
     let 得分的音效 = SKAction.playSoundFileNamed("coin.wav", waitForCompletion: false)
     
     override func didMoveToView(view: SKView) {
+        
+        // 关掉重力
+        physicsWorld.gravity = CGVectorMake(0, 0)
+        
         addChild(世界单位)
         设置背景()
         设置前景()
@@ -69,11 +80,40 @@ class GameScene: SKScene {
         游戏区域起始点 = size.height - 背景.size.height
         游戏区域的高度 = 背景.size.height
         
+        let 左下 = CGPoint(x: 0, y: 游戏区域起始点)
+        let 右下 = CGPoint(x: size.width, y: 游戏区域起始点)
+        
+        self.physicsBody = SKPhysicsBody(edgeFromPoint: 左下, toPoint: 右下)
+        self.physicsBody?.categoryBitMask = 物理层.地面
+        self.physicsBody?.collisionBitMask = 0
+        self.physicsBody?.contactTestBitMask = 物理层.游戏角色
+        
     }
     
     func 设置主角() {
         主角.position = CGPoint(x: size.width * 0.2, y: 游戏区域的高度 * 0.4 + 游戏区域起始点)
         主角.zPosition = 图层.游戏角色.rawValue
+        
+        let offsetX = 主角.size.width * 主角.anchorPoint.x
+        let offsetY = 主角.size.height * 主角.anchorPoint.y
+        
+        let path = CGPathCreateMutable()
+        
+        CGPathMoveToPoint(path, nil, 3 - offsetX, 12 - offsetY)
+        CGPathAddLineToPoint(path, nil, 18 - offsetX, 22 - offsetY)
+        CGPathAddLineToPoint(path, nil, 28 - offsetX, 27 - offsetY)
+        CGPathAddLineToPoint(path, nil, 39 - offsetX, 23 - offsetY)
+        CGPathAddLineToPoint(path, nil, 39 - offsetX, 9 - offsetY)
+        CGPathAddLineToPoint(path, nil, 25 - offsetX, 4 - offsetY)
+        CGPathAddLineToPoint(path, nil, 5 - offsetX, 2 - offsetY)
+        
+        CGPathCloseSubpath(path)
+        
+        主角.physicsBody = SKPhysicsBody(polygonFromPath: path)
+        主角.physicsBody?.categoryBitMask = 物理层.游戏角色
+        主角.physicsBody?.collisionBitMask = 0
+        主角.physicsBody?.contactTestBitMask = 物理层.障碍物 | 物理层.地面
+        
         世界单位.addChild(主角)
     }
     
@@ -99,6 +139,24 @@ class GameScene: SKScene {
     func 创建障碍物(图片名: String) -> SKSpriteNode {
         let 障碍物 = SKSpriteNode(imageNamed: 图片名)
         障碍物.zPosition = 图层.障碍物.rawValue
+        
+        let offsetX = 障碍物.size.width * 障碍物.anchorPoint.x
+        let offsetY = 障碍物.size.height * 障碍物.anchorPoint.y
+        
+        let path = CGPathCreateMutable()
+        
+        CGPathMoveToPoint(path, nil, 4 - offsetX, 0 - offsetY)
+        CGPathAddLineToPoint(path, nil, 7 - offsetX, 307 - offsetY)
+        CGPathAddLineToPoint(path, nil, 47 - offsetX, 308 - offsetY)
+        CGPathAddLineToPoint(path, nil, 48 - offsetX, 1 - offsetY)
+        
+        CGPathCloseSubpath(path)
+        
+        障碍物.physicsBody = SKPhysicsBody(polygonFromPath: path)
+        障碍物.physicsBody?.categoryBitMask = 物理层.障碍物
+        障碍物.physicsBody?.collisionBitMask = 0
+        障碍物.physicsBody?.contactTestBitMask = 物理层.游戏角色
+        
         return 障碍物
     }
     
