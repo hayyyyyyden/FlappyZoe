@@ -253,6 +253,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         case .跌落:
             break
         case .显示分数:
+            切换到新游戏()
             break
         case .结束:
             break
@@ -356,7 +357,13 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         停止重生障碍()
     }
     
-    
+    func 切换到新游戏() {
+        runAction(砰的音效)
+        
+        let 新的游戏场景 = GameScene.init(size: size)
+        let 切换特效 = SKTransition.fadeWithColor(SKColor.blackColor(), duration: 0.05)
+        view?.presentScene(新的游戏场景, transition: 切换特效)
+    }    
     
     // MARK: 物理引擎
     
@@ -371,6 +378,5 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             撞击了障碍物 = true
         }
     }
-    
     
 }
