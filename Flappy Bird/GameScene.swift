@@ -13,16 +13,17 @@ enum 图层: CGFloat {
     case 障碍物
     case 前景
     case 游戏角色
+    case UI
 }
 
-    enum 游戏状态 {
-        case 主菜单
-        case 教程
-        case 游戏
-        case 跌落
-        case 显示分数
-        case 结束
-    }
+enum 游戏状态 {
+    case 主菜单
+    case 教程
+    case 游戏
+    case 跌落
+    case 显示分数
+    case 结束
+}
 
 struct 物理层 {
     static let 无: UInt32 =        0
@@ -44,6 +45,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let k首次生成障碍延迟: NSTimeInterval = 1.75
     let k每次重生障碍延迟: NSTimeInterval = 1.5
     
+    let k顶部留白: CGFloat = 20.0
+    let k字体名字 = "AmericanTypewriter-Bold"
+    var 得分标签: SKLabelNode!
+    var 当前分数 = 0
     
     var 速度 = CGPoint.zero
     var 撞击了地面 = false
@@ -79,6 +84,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         设置前景()
         设置主角()
         设置帽子()
+        设置得分标签()
         无限重生障碍()
     }
     
@@ -148,11 +154,23 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         主角.addChild(帽子)
     }
     
+    func 设置得分标签() {
+        得分标签 = SKLabelNode(fontNamed: k字体名字)
+        得分标签.fontColor = SKColor(red: 101.0/255.0, green: 71.0/255.0, blue: 73.0/255.0, alpha: 1.0)
+        得分标签.position = CGPoint(x: size.width/2, y: size.height - k顶部留白)
+        得分标签.verticalAlignmentMode = .Top
+        得分标签.text = "0"
+        得分标签.zPosition = 图层.UI.rawValue
+        世界单位.addChild(得分标签)
+    }
+    
+    
     // MARK: 游戏流程
     
     func 创建障碍物(图片名: String) -> SKSpriteNode {
         let 障碍物 = SKSpriteNode(imageNamed: 图片名)
         障碍物.zPosition = 图层.障碍物.rawValue
+        障碍物.userData = NSMutableDictionary()
         
         let offsetX = 障碍物.size.width * 障碍物.anchorPoint.x
         let offsetY = 障碍物.size.height * 障碍物.anchorPoint.y
@@ -280,6 +298,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 更新主角()
                 撞击障碍物检查()
                 撞击地面检查()
+                更新得分()
                 break
             case .跌落:
                 更新主角()
@@ -334,6 +353,27 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             切换到显示分数状态()
         }
     }
+    
+    func 更新得分() {
+        世界单位.enumerateChildNodesWithName("顶部障碍", usingBlock: { 匹配单位, _ in
+            if let 障碍物 = 匹配单位 as? SKSpriteNode {
+                if let 已通过 = 障碍物.userData?["已通过"] as? NSNumber {
+                    if 已通过.boolValue {
+                        return   // 已经计算过一次得分了
+                    }
+                }
+                
+                if self.主角.position.x > 障碍物.position.x + 障碍物.size.width/2 {
+                    self.当前分数++
+                    self.得分标签.text = "\(self.当前分数)"
+                    self.runAction(self.得分的音效)
+                    障碍物.userData?["已通过"] = NSNumber(bool: true)
+                }
+            }
+        })
+    }
+    
+    
     
     // MARK: 游戏状态
     
