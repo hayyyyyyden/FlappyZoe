@@ -35,6 +35,9 @@ struct 物理层 {
 
 class GameScene: SKScene, SKPhysicsContactDelegate {
     
+    let 课程网址 = "http://www.iOSinit.com/flappy-bird"
+    let AppStore的链接 = "http://itunes.apple.com/app/id1077251372?mt=8"
+    
     let k前景地面数 = 2
     let k地面移动速度 : CGFloat = -150.0
     let k重力 : CGFloat = -1500.0
@@ -81,15 +84,78 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         physicsWorld.contactDelegate = self
         
         addChild(世界单位)
-        设置背景()
-        设置前景()
-        设置主角()
-        设置帽子()
-        设置得分标签()
-        无限重生障碍()
+        切换到主菜单()
     }
     
     // MARK: 设置的相关方法
+    
+    func 设置主菜单() {
+        
+        // logo
+        
+        let logo = SKSpriteNode(imageNamed: "Logo")
+        logo.position = CGPoint(x: size.width/2, y: size.height * 0.8)
+        logo.name = "主菜单"
+        logo.zPosition = 图层.UI.rawValue
+        世界单位.addChild(logo)
+        
+        // 开始游戏按钮
+        
+        let 开始游戏按钮 = SKSpriteNode(imageNamed: "Button")
+        开始游戏按钮.position = CGPoint(x: size.width * 0.25, y: size.height * 0.25)
+        开始游戏按钮.name = "主菜单"
+        开始游戏按钮.zPosition = 图层.UI.rawValue
+        世界单位.addChild(开始游戏按钮)
+        
+        let 游戏 = SKSpriteNode(imageNamed: "Play")
+        游戏.position = CGPoint.zero
+        开始游戏按钮.addChild(游戏)
+        
+        // 评价按钮
+        
+        let 评价按钮 = SKSpriteNode(imageNamed: "Button")
+        评价按钮.position = CGPoint(x: size.width * 0.75, y: size.height * 0.25)
+        评价按钮.zPosition = 图层.UI.rawValue
+        评价按钮.name = "主菜单"
+        世界单位.addChild(评价按钮)
+        
+        let 评价 = SKSpriteNode(imageNamed: "Rate")
+        评价.position = CGPoint.zero
+        评价按钮.addChild(评价)
+        
+        // 学习按钮
+        
+        let 学习 = SKSpriteNode(imageNamed: "button_learn")
+        学习.position = CGPoint(x: size.width * 0.5, y: 学习.size.height/2 + k顶部留白)
+        学习.name = "主菜单"
+        学习.zPosition = 图层.UI.rawValue
+        世界单位.addChild(学习)
+        
+        // 学习按钮的动画
+        let 放大动画 = SKAction.scaleTo(1.02, duration: 0.75)
+        放大动画.timingMode = .EaseInEaseOut
+        
+        let 缩小动画 = SKAction.scaleTo(0.98, duration: 0.75)
+        缩小动画.timingMode = .EaseInEaseOut
+        
+        学习.runAction(SKAction.repeatActionForever(SKAction.sequence([
+            放大动画,缩小动画
+            ])), withKey: "主菜单")
+    }
+    
+    func 设置教程() {
+        let 教程 = SKSpriteNode(imageNamed: "Tutorial")
+        教程.position = CGPoint(x: size.width * 0.5 , y: 游戏区域的高度 * 0.4 + 游戏区域起始点)
+        教程.name = "教程"
+        教程.zPosition = 图层.UI.rawValue
+        世界单位.addChild(教程)
+        
+        let 准备 = SKSpriteNode(imageNamed: "Ready")
+        准备.position = CGPoint(x: size.width * 0.5, y: 游戏区域的高度 * 0.7 + 游戏区域起始点)
+        准备.name = "教程"
+        准备.zPosition = 图层.UI.rawValue
+        世界单位.addChild(准备)
+    }
     
     func 设置背景() {
         let 背景 = SKSpriteNode(imageNamed: "Background")
@@ -346,17 +412,30 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         向上移动.timingMode = .EaseInEaseOut
         let 向下移动 = 向上移动.reversedAction()
         帽子.runAction(SKAction.sequence([向上移动, 向下移动]))
+        
+        // 播放音效
+        runAction(拍打的音效)
     }
     
     
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        // 播放音效
-        runAction(拍打的音效)
+        guard let 点击 = touches.first else {
+            return
+        }
+        let 点击位置 = 点击.locationInNode(self)
         
         switch 当前游戏状态 {
         case .主菜单:
+            if 点击位置.y < size.height * 0.15 {
+                去学习()
+            } else if 点击位置.x < size.width/2 {
+                切换到教程状态()
+            } else {
+                去评价()
+            }
             break
         case .教程:
+            切换到游戏状态()
             break
         case .游戏:
             // 增加上冲速度
@@ -471,6 +550,48 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     // MARK: 游戏状态
     
+    func 切换到主菜单() {
+        
+        当前游戏状态 = .主菜单
+        设置背景()
+        设置前景()
+        设置主角()
+        设置帽子()
+        设置主菜单()
+    
+    }
+    
+    func 切换到教程状态() {
+        
+        当前游戏状态 = .教程
+        世界单位.enumerateChildNodesWithName("主菜单") { 匹配单位, _ in
+            匹配单位.runAction(SKAction.sequence([
+                SKAction.fadeOutWithDuration(0.05),
+                SKAction.removeFromParent()
+                ]))
+        }
+        
+        设置得分标签()
+        设置教程()
+        
+    }
+    
+    func 切换到游戏状态() {
+        
+        当前游戏状态 = .游戏
+        
+        世界单位.enumerateChildNodesWithName("教程") { 匹配单位, _ in
+            匹配单位.runAction(SKAction.sequence([
+                SKAction.fadeOutWithDuration(0.05),
+                SKAction.removeFromParent()
+                ]))
+        }
+        
+        无限重生障碍()
+        主角飞一下()
+    
+    }
+    
     func 切换到跌落状态() {
         
         当前游戏状态 = .跌落
@@ -527,6 +648,18 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if 被撞对象.categoryBitMask == 物理层.障碍物 {
             撞击了障碍物 = true
         }
+    }
+    
+    // MARK: 其他
+    
+    func 去学习() {
+        let 网址 = NSURL(string: 课程网址)
+        UIApplication.sharedApplication().openURL(网址!)
+    }
+    
+    func 去评价() {
+        let 网址 = NSURL(string: AppStore的链接)
+        UIApplication.sharedApplication().openURL(网址!)
     }
     
 }
