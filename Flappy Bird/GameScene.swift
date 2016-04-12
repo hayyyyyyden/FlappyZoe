@@ -48,9 +48,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     let k首次生成障碍延迟: NSTimeInterval = 1.75
     let k每次重生障碍延迟: NSTimeInterval = 1.5
     let k动画延迟 = 0.3
-    
     let k顶部留白: CGFloat = 20.0
     let k字体名字 = "AmericanTypewriter-Bold"
+    let k角色动画总帧数 = 4
+    
+    
     var 得分标签: SKLabelNode!
     var 当前分数 = 0
     
@@ -155,6 +157,28 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         准备.name = "教程"
         准备.zPosition = 图层.UI.rawValue
         世界单位.addChild(准备)
+        
+        let 向上移动 = SKAction.moveByX(0, y: 50, duration: 0.4)
+        向上移动.timingMode = .EaseInEaseOut
+        let 向下移动 = 向上移动.reversedAction()
+        
+        主角.runAction(SKAction.repeatActionForever(SKAction.sequence([
+            向上移动,向下移动
+            ])), withKey: "起飞")
+        
+        var 角色贴图组: Array<SKTexture> = []
+        
+        for i in 0..<k角色动画总帧数 {
+            角色贴图组.append(SKTexture(imageNamed: "Bird\(i)"))
+        }
+        
+        for i in (k角色动画总帧数-1).stride(through: 0, by: -1) {
+            角色贴图组.append(SKTexture(imageNamed: "Bird\(i)"))
+        }
+        
+        let 扇动翅膀的动画 = SKAction.animateWithTextures(角色贴图组, timePerFrame: 0.07)
+        主角.runAction(SKAction.repeatActionForever(扇动翅膀的动画))
+        
     }
     
     func 设置背景() {
@@ -586,6 +610,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 SKAction.removeFromParent()
                 ]))
         }
+        主角.removeActionForKey("起飞")
         
         无限重生障碍()
         主角飞一下()
